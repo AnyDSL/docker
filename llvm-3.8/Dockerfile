@@ -71,7 +71,7 @@ RUN mkdir -p llvm/build \
         -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
 
 RUN cd llvm/build \
- && make -j install \
+ && make install \
  && cd .. \
  && ls -al /usr/local/bin \
  && rm -rf build
