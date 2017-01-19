@@ -30,3 +30,4 @@ RUN cd thorin/build \
 # && cd .. \
 # && rm -rf build
 
+ENV THORIN_DIR /opt/anydsl/thorin
