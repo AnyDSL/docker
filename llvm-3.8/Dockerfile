@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM alpine:latest
 #FROM gcc:5
 
 MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
@@ -6,26 +6,21 @@ MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
 WORKDIR /opt/anydsl
 
 ENV LLVM_VERSION 3.8.1
-ENV BUILD_TYPE Debug
+#ENV BUILD_TYPE Debug
+ENV BUILD_TYPE Release
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN apk update \
+ && apk add g++ make cmake xz unzip python
 
-RUN apt-get update -q \
- && apt-get upgrade -y -q \
- && apt-get install -y --no-install-recommends wget cmake xz-utils unzip
-
-RUN wget --progress=dot:mega http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
+RUN wget http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
  && tar -xf llvm-${LLVM_VERSION}.src.tar.xz \
  && rm llvm-${LLVM_VERSION}.src.tar.xz \
  && mv llvm-${LLVM_VERSION}.src llvm \
  && cd llvm/tools \
- && wget --progress=dot:mega http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
+ && wget http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
  && tar xf cfe-${LLVM_VERSION}.src.tar.xz \
  && rm cfe-${LLVM_VERSION}.src.tar.xz \
  && mv cfe-${LLVM_VERSION}.src clang
-
-
-RUN apt-get install -y --no-install-recommends build-essential python
 
 RUN mkdir -p llvm/build \
  && cd llvm/build \
@@ -68,10 +63,8 @@ RUN mkdir -p llvm/build \
         -DLLVM_TOOL_VERIFY_USELISTORDER_BUILD:BOOL=OFF \
         -DLLVM_TOOL_XCODE_TOOLCHAIN_BUILD:BOOL=OFF \
         -DLLVM_TOOL_YAML2OBJ_BUILD:BOOL=OFF \
-        -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
-
-RUN cd llvm/build \
- && make install \
+        -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86" \
+ && make -j install \
  && cd .. \
  && ls -al /usr/local/bin \
  && rm -rf build
