@@ -1,5 +1,4 @@
-FROM alpine:latest
-#FROM gcc:5
+FROM alpine:3.4
 
 MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
 
