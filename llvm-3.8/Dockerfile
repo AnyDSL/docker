@@ -12,12 +12,12 @@ ENV BUILD_TYPE Release
 RUN apk update \
  && apk add g++ make cmake xz unzip python
 
-RUN wget http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
+RUN wget -q http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
  && tar -xf llvm-${LLVM_VERSION}.src.tar.xz \
  && rm llvm-${LLVM_VERSION}.src.tar.xz \
  && mv llvm-${LLVM_VERSION}.src llvm \
  && cd llvm/tools \
- && wget http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
+ && wget -q http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
  && tar xf cfe-${LLVM_VERSION}.src.tar.xz \
  && rm cfe-${LLVM_VERSION}.src.tar.xz \
  && mv cfe-${LLVM_VERSION}.src clang
@@ -63,8 +63,10 @@ RUN mkdir -p llvm/build \
         -DLLVM_TOOL_VERIFY_USELISTORDER_BUILD:BOOL=OFF \
         -DLLVM_TOOL_XCODE_TOOLCHAIN_BUILD:BOOL=OFF \
         -DLLVM_TOOL_YAML2OBJ_BUILD:BOOL=OFF \
-        -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86" \
- && make -j install \
+        -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
+
+RUN cd llvm-build \
+ && make install \
  && cd .. \
  && ls -al /usr/local/bin \
  && rm -rf build
