@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:latest
 
 MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
 
@@ -26,6 +26,7 @@ RUN mkdir -p llvm/build \
  && cmake ../ \
         -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
         -DCMAKE_INSTALL_PREFIX:PATH="/usr/local" \
+        -DCMAKE_CXX_FLAGS:STRING="-fpermissive" \
         -DLLVM_ENABLE_RTTI:BOOL=ON \
         -DLLVM_INCLUDE_TESTS:BOOL=OFF \
         -DLLVM_TOOL_LLVM_AS_BUILD:BOOL=OFF \
@@ -65,7 +66,7 @@ RUN mkdir -p llvm/build \
         -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
 
 RUN cd llvm/build \
- && make install \
+ && make -j install \
  && cd .. \
  && ls -al /usr/local/bin \
  && rm -rf build
