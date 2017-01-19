@@ -65,7 +65,7 @@ RUN mkdir -p llvm/build \
         -DLLVM_TOOL_YAML2OBJ_BUILD:BOOL=OFF \
         -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
 
-RUN cd llvm-build \
+RUN cd llvm/build \
  && make install \
  && cd .. \
  && ls -al /usr/local/bin \
