@@ -15,19 +15,12 @@ ENV Half_DIR /opt/anydsl/half-${HALF_VERSION}/include
 RUN wget https://github.com/anydsl/thorin/archive/${THORIN_BRANCH}.tar.gz \
  && tar -xf ${THORIN_BRANCH}.tar.gz \
  && rm ${THORIN_BRANCH}.tar.gz \
- && mv thorin-${THORIN_BRANCH} thorin \
- && mkdir -p thorin/build
+ && mv thorin-${THORIN_BRANCH} thorin
 
-ADD FindHalf.cmake /opt/anydsl/thorin/runtime/cmake/modules/
-
-RUN cd thorin/build \
+RUN mkdir -p thorin/build \
+ && cd thorin/build \
  && cmake ../ \
-        -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
-
-RUN cd thorin/build \
- && make
-#&& make install \
-# && cd .. \
-# && rm -rf build
+        -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
+ && cmake --build .
 
 ENV THORIN_DIR /opt/anydsl/thorin
