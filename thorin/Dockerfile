@@ -23,4 +23,4 @@ RUN mkdir -p thorin/build \
         -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
  && cmake --build .
 
-ENV Thorin_DIR /opt/anydsl/thorin
+ENV Thorin_DIR /opt/anydsl/thorin/build/share/thorin/cmake
