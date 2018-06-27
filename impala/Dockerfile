@@ -1,8 +1,11 @@
-FROM anydsl/thorin
+ARG CMAKE_BUILD_TYPE=Debug
+
+FROM anydsl/thorin:master-${CMAKE_BUILD_TYPE}
 
 MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
 
-ENV IMPALA_BRANCH master
+ENV IMPALA_BRANCH=master
+ARG CMAKE_MAKE_FLAGS=-j4
 
 RUN wget -q https://github.com/anydsl/impala/archive/${IMPALA_BRANCH}.tar.gz \
  && tar -xf ${IMPALA_BRANCH}.tar.gz \
@@ -13,9 +16,9 @@ RUN mkdir -p impala/build \
  && cd impala/build \
  && cmake ../ \
         -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
- && cmake --build .
+ && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
-ENV PATH "$PATH:/opt/anydsl/impala/build/bin"
+ENV Impala_DIR=/opt/anydsl/impala/build/share/anydsl/cmake
 
-CMD ["impala", "--help"]
+CMD ["/opt/anydsl/impala/build/bin/impala", "--help"]
 
