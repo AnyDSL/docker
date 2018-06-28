@@ -2,7 +2,7 @@ ARG CMAKE_BUILD_TYPE=Debug
 
 FROM anydsl/thorin:master-${CMAKE_BUILD_TYPE}
 
-MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
+LABEL website="https://anydsl.github.io"
 
 ENV IMPALA_BRANCH=master
 ARG CMAKE_MAKE_FLAGS=-j4

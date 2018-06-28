@@ -1,10 +1,11 @@
 FROM anydsl/build-base
 
-MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
+LABEL website="https://anydsl.github.io"
 
 WORKDIR /opt
 
-ENV LLVM_VERSION=5.0.1
+ENV LLVM_VERSION=5.0.2
+ARG RV_BRANCH=release_50
 ARG CMAKE_BUILD_TYPE=Debug
 ARG CMAKE_MAKE_FLAGS=-j4
 
@@ -16,8 +17,11 @@ RUN wget -q http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.ta
  && wget -q http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
  && tar xf cfe-${LLVM_VERSION}.src.tar.xz \
  && rm cfe-${LLVM_VERSION}.src.tar.xz \
- && mv cfe-${LLVM_VERSION}.src clang
-# TODO: add RV
+ && mv cfe-${LLVM_VERSION}.src clang \
+ && wget https://github.com/cdl-saarland/rv/archive/${RV_BRANCH}.tar.gz \
+ && tar -xf ${RV_BRANCH}.tar.gz \
+ && rm ${RV_BRANCH}.tar.gz \
+ && mv rv-${RV_BRANCH} rv
 
 RUN mkdir -p llvm-build \
  && cd llvm-build \

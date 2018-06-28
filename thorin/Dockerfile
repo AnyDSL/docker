@@ -1,17 +1,18 @@
 ARG CMAKE_BUILD_TYPE=Debug
 
-FROM anydsl/llvm:5.0.1-${CMAKE_BUILD_TYPE}
+FROM anydsl/llvm:5.0.2-${CMAKE_BUILD_TYPE}
 
-MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
+LABEL website="https://anydsl.github.io"
 
-ENV HALF_VERSION=1.11.0
+ENV HALF_VERSION=1.12.0
 ARG THORIN_BRANCH=master
+ARG THORIN_PROFILE=false
 ARG CMAKE_MAKE_FLAGS=-j4
 
 WORKDIR /opt/anydsl
 
 RUN wget http://downloads.sourceforge.net/project/half/half/${HALF_VERSION}/half-${HALF_VERSION}.zip \
- && unzip half-${HALF_VERSION}.zip \
+ && unzip -d half-${HALF_VERSION} half-${HALF_VERSION}.zip \
  && rm half-${HALF_VERSION}.zip
 
 ENV Half_DIR /opt/anydsl/half-${HALF_VERSION}/include
@@ -25,6 +26,7 @@ RUN mkdir -p thorin/build \
  && cd thorin/build \
  && cmake ../ \
         -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
+        -DTHORIN_PROFILE:BOOL=${THORIN_PROFILE} \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
 ENV Thorin_DIR /opt/anydsl/thorin/build/share/anydsl/cmake

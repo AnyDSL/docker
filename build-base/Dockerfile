@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-MAINTAINER Stefan Lemme <stefan.lemme@dfki.de>
+LABEL website="https://anydsl.github.io"
 
 WORKDIR /opt
 
