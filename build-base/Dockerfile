@@ -1,11 +1,10 @@
-FROM alpine:latest
+FROM base/archlinux:latest
 
 LABEL website="https://anydsl.github.io"
 
 WORKDIR /opt
 
-RUN apk update \
- && apk add --no-cache build-base bash cmake zlib-dev unzip python openssl
+RUN pacman -Syu --noconfirm \
+ && pacman -S --noconfirm base-devel cmake unzip python wget python2
 
 CMD ["cmake", "--version"]
-

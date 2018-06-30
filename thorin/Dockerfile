@@ -30,4 +30,3 @@ RUN mkdir -p thorin/build \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
 ENV Thorin_DIR /opt/anydsl/thorin/build/share/anydsl/cmake
-

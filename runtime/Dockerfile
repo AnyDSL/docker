@@ -4,6 +4,9 @@ FROM anydsl/impala:master-${CMAKE_BUILD_TYPE}
 
 LABEL website="https://anydsl.github.io"
 
+RUN pacman -Syu --noconfirm \
+ && pacman -S --noconfirm intel-tbb
+
 ENV RUNTIME_BRANCH=master
 ARG RUNTIME_JIT=false
 ARG CMAKE_MAKE_FLAGS=-j4

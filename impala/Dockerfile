@@ -21,4 +21,3 @@ RUN mkdir -p impala/build \
 ENV Impala_DIR=/opt/anydsl/impala/build/share/anydsl/cmake
 
 CMD ["/opt/anydsl/impala/build/bin/impala", "--help"]
-

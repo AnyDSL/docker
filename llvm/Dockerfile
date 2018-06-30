@@ -13,7 +13,10 @@ RUN wget -q http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.ta
  && tar -xf llvm-${LLVM_VERSION}.src.tar.xz \
  && rm llvm-${LLVM_VERSION}.src.tar.xz \
  && mv llvm-${LLVM_VERSION}.src llvm-source \
- && cd llvm-source/tools \
+ && wget -q https://raw.githubusercontent.com/AnyDSL/anydsl/master/gcc8-llvm.patch \
+ && cd llvm-source \
+ && patch -p1 -i ../gcc8-llvm.patch \
+ && cd tools \
  && wget -q http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
  && tar xf cfe-${LLVM_VERSION}.src.tar.xz \
  && rm cfe-${LLVM_VERSION}.src.tar.xz \
@@ -24,6 +27,7 @@ RUN wget -q http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.ta
  && mv rv-${RV_BRANCH} rv
 
 RUN mkdir -p llvm-build \
+ && mkdir -p llvm-install \
  && cd llvm-build \
  && cmake /opt/llvm-source \
         -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} \
@@ -39,4 +43,3 @@ RUN cmake --build /opt/llvm-build --target install -- ${CMAKE_MAKE_FLAGS} \
 ENV LLVM_DIR /opt/llvm-install/lib/cmake/llvm
 
 CMD ["/opt/llvm-install/bin/clang", "--version"]
-
