@@ -15,7 +15,7 @@ RUN wget -q https://github.com/anydsl/impala/archive/${IMPALA_BRANCH}.tar.gz \
 RUN mkdir -p impala/build \
  && cd impala/build \
  && cmake ../ \
-        -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
+        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
 ENV Impala_DIR=/opt/anydsl/impala/build/share/anydsl/cmake

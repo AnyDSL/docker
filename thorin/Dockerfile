@@ -25,7 +25,7 @@ RUN wget https://github.com/anydsl/thorin/archive/${THORIN_BRANCH}.tar.gz \
 RUN mkdir -p thorin/build \
  && cd thorin/build \
  && cmake ../ \
-        -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE} \
+        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} \
         -DTHORIN_PROFILE:BOOL=${THORIN_PROFILE} \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
