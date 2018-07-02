@@ -5,7 +5,8 @@ FROM anydsl/impala:master-${CMAKE_BUILD_TYPE}
 LABEL website="https://anydsl.github.io"
 
 RUN pacman -Syu --noconfirm \
- && pacman -S --noconfirm intel-tbb
+ && pacman -S --noconfirm intel-tbb \
+ && rm -rf /var/cache/pacman/pkg/*
 
 ENV RUNTIME_BRANCH=master
 ARG RUNTIME_JIT=false
