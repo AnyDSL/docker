@@ -1,6 +1,4 @@
-ARG CMAKE_BUILD_TYPE=Debug
-
-FROM anydsl/impala:master-${CMAKE_BUILD_TYPE}
+FROM anydsl/impala
 
 LABEL website="https://anydsl.github.io"
 
@@ -19,7 +17,7 @@ RUN wget -q https://github.com/anydsl/runtime/archive/${RUNTIME_BRANCH}.tar.gz \
 
 RUN mkdir -p runtime/build \
  && cd runtime/build \
- && cmake .. -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} -DRUNTIME_JIT=${RUNTIME_JIT} \
+ && cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DRUNTIME_JIT=${RUNTIME_JIT} \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
 ENV AnyDSL_runtime_DIR=/opt/anydsl/runtime/build/share/anydsl/cmake

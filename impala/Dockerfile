@@ -1,6 +1,4 @@
-ARG CMAKE_BUILD_TYPE=Debug
-
-FROM anydsl/thorin:master-${CMAKE_BUILD_TYPE}
+FROM anydsl/thorin
 
 LABEL website="https://anydsl.github.io"
 
@@ -15,7 +13,7 @@ RUN wget -q https://github.com/anydsl/impala/archive/${IMPALA_BRANCH}.tar.gz \
 RUN mkdir -p impala/build \
  && cd impala/build \
  && cmake ../ \
-        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} \
+        -DCMAKE_BUILD_TYPE:STRING=Release \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
 ENV Impala_DIR=/opt/anydsl/impala/build/share/anydsl/cmake

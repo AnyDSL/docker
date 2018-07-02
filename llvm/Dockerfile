@@ -6,7 +6,6 @@ WORKDIR /opt
 
 ENV LLVM_VERSION=5.0.2
 ARG RV_BRANCH=release_50
-ARG CMAKE_BUILD_TYPE=Debug
 ARG CMAKE_MAKE_FLAGS=-j4
 
 RUN wget -q http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
@@ -30,7 +29,7 @@ RUN mkdir -p llvm-build \
  && mkdir -p llvm-install \
  && cd llvm-build \
  && cmake /opt/llvm-source \
-        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} \
+        -DCMAKE_BUILD_TYPE:STRING=Release \
         -DCMAKE_INSTALL_PREFIX:PATH="/opt/llvm-install" \
         -DBUILD_SHARED_LIBS:BOOL=ON \
         -DLLVM_ENABLE_RTTI:BOOL=ON \

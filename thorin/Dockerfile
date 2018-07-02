@@ -1,6 +1,4 @@
-ARG CMAKE_BUILD_TYPE=Debug
-
-FROM anydsl/llvm:5.0.2-${CMAKE_BUILD_TYPE}
+FROM anydsl/llvm
 
 LABEL website="https://anydsl.github.io"
 
@@ -25,7 +23,7 @@ RUN wget https://github.com/anydsl/thorin/archive/${THORIN_BRANCH}.tar.gz \
 RUN mkdir -p thorin/build \
  && cd thorin/build \
  && cmake ../ \
-        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} \
+        -DCMAKE_BUILD_TYPE:STRING=Release \
         -DTHORIN_PROFILE:BOOL=${THORIN_PROFILE} \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
