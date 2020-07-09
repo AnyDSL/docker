@@ -1,0 +1,21 @@
+FROM anydsl/thorin:llvm-8
+
+LABEL website="https://anydsl.github.io"
+
+ENV IMPALA_BRANCH=ecb145214c6848f4672e1bb1eec10f7564ee5662
+ARG CMAKE_MAKE_FLAGS=-j4
+
+RUN wget -q https://github.com/anydsl/impala/archive/${IMPALA_BRANCH}.tar.gz \
+ && tar -xf ${IMPALA_BRANCH}.tar.gz \
+ && rm ${IMPALA_BRANCH}.tar.gz \
+ && mv impala-${IMPALA_BRANCH} impala
+
+RUN mkdir -p impala/build \
+ && cd impala/build \
+ && cmake ../ \
+        -DCMAKE_BUILD_TYPE:STRING=Release \
+ && cmake --build . -- ${CMAKE_MAKE_FLAGS}
+
+ENV Impala_DIR=/opt/anydsl/impala/build/share/anydsl/cmake
+
+CMD ["/opt/anydsl/impala/build/bin/impala", "--help"]

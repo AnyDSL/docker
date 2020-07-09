@@ -1,0 +1,52 @@
+FROM anydsl/build-base as builder
+
+LABEL website="https://anydsl.github.io"
+
+WORKDIR /opt
+
+ENV LLVM_VERSION=8.0.1
+ARG RV_BRANCH=release_80
+ARG CMAKE_MAKE_FLAGS=-j4
+
+RUN wget -q https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
+ && tar -xf llvm-${LLVM_VERSION}.src.tar.xz \
+ && rm llvm-${LLVM_VERSION}.src.tar.xz \
+ && mv llvm-${LLVM_VERSION}.src llvm-source
+
+RUN cd llvm-source \
+ && wget -q https://raw.githubusercontent.com/AnyDSL/anydsl/d9fd666480b6d66df5d4471f3827f26bb9c27f6d/gcc-10.patch \
+ && wget -q https://raw.githubusercontent.com/AnyDSL/anydsl/d9fd666480b6d66df5d4471f3827f26bb9c27f6d/nvptx_feature_ptx60.patch \
+ && patch include/llvm/Demangle/MicrosoftDemangleNodes.h < gcc-10.patch \
+ && patch -p1 -i nvptx_feature_ptx60.patch
+
+RUN cd llvm-source/tools \
+ && wget -q https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
+ && tar xf cfe-${LLVM_VERSION}.src.tar.xz \
+ && rm cfe-${LLVM_VERSION}.src.tar.xz \
+ && mv cfe-${LLVM_VERSION}.src clang \
+ && git clone https://github.com/cdl-saarland/rv --branch ${RV_BRANCH} --recursive rv
+
+RUN mkdir -p llvm-build \
+ && mkdir -p llvm \
+ && cd llvm-build \
+ && cmake /opt/llvm-source \
+        -DCMAKE_BUILD_TYPE:STRING=Release \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/llvm" \
+        -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+        -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
+        -DLLVM_ENABLE_RTTI:BOOL=ON \
+        -DLLVM_ENABLE_CXX1Y:BOOL=ON \
+        -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
+
+RUN cmake --build /opt/llvm-build --target install -- ${CMAKE_MAKE_FLAGS}
+
+FROM anydsl/build-base
+WORKDIR /opt
+
+COPY --from=builder /opt/llvm /opt/llvm/
+
+RUN ls -al /opt/llvm/
+ENV LLVM_DIR /opt/llvm/lib/cmake/llvm
+
+CMD ["/opt/llvm/bin/clang", "--version"]
+
