@@ -1,44 +1,48 @@
-FROM anydsl/build-base
+FROM anydsl/build-base as builder
 
 LABEL website="https://anydsl.github.io"
 
 WORKDIR /opt
 
-ENV LLVM_VERSION=5.0.2
-ARG RV_BRANCH=release_50
+ENV LLVM_VERSION=10.0.0
+ARG RV_BRANCH=release/10.x
 ARG CMAKE_MAKE_FLAGS=-j4
 
-RUN wget -q http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz \
- && tar -xf llvm-${LLVM_VERSION}.src.tar.xz \
- && rm llvm-${LLVM_VERSION}.src.tar.xz \
- && mv llvm-${LLVM_VERSION}.src llvm-source \
- && wget -q https://raw.githubusercontent.com/AnyDSL/anydsl/master/gcc8-llvm.patch \
- && cd llvm-source \
- && patch -p1 -i ../gcc8-llvm.patch \
- && cd tools \
- && wget -q http://llvm.org/releases/${LLVM_VERSION}/cfe-${LLVM_VERSION}.src.tar.xz \
- && tar xf cfe-${LLVM_VERSION}.src.tar.xz \
- && rm cfe-${LLVM_VERSION}.src.tar.xz \
- && mv cfe-${LLVM_VERSION}.src clang \
- && wget https://github.com/cdl-saarland/rv/archive/${RV_BRANCH}.tar.gz \
- && tar -xf ${RV_BRANCH}.tar.gz \
- && rm ${RV_BRANCH}.tar.gz \
- && mv rv-${RV_BRANCH} rv
+RUN wget -q https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-project-${LLVM_VERSION}.tar.xz \
+ && tar -xf llvm-project-${LLVM_VERSION}.tar.xz \
+ && rm llvm-project-${LLVM_VERSION}.tar.xz \
+ && mv llvm-project-${LLVM_VERSION} llvm-project
+
+RUN cd llvm-project \
+ && wget -q https://raw.githubusercontent.com/AnyDSL/anydsl/master/nvptx_feature_ptx60.patch \
+ && patch -p1 -i nvptx_feature_ptx60.patch
+
+RUN cd llvm-project \
+ && git clone https://github.com/cdl-saarland/rv --branch ${RV_BRANCH} --recursive rv
 
 RUN mkdir -p llvm-build \
- && mkdir -p llvm-install \
+ && mkdir -p llvm \
  && cd llvm-build \
- && cmake /opt/llvm-source \
+ && cmake /opt/llvm-project/llvm \
         -DCMAKE_BUILD_TYPE:STRING=Release \
-        -DCMAKE_INSTALL_PREFIX:PATH="/opt/llvm-install" \
-        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DCMAKE_INSTALL_PREFIX:PATH="/opt/llvm" \
+        -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+        -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
         -DLLVM_ENABLE_RTTI:BOOL=ON \
+        -DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
+        -DLLVM_EXTERNAL_PROJECTS="rv" \
+        -DLLVM_EXTERNAL_RV_SOURCE_DIR:PATH="/opt/llvm-project/rv" \
         -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
 
-RUN cmake --build /opt/llvm-build --target install -- ${CMAKE_MAKE_FLAGS} \
- && ls -al /opt/llvm-install \
- && rm -rf /opt/llvm-build
+RUN cmake --build /opt/llvm-build --target install -- ${CMAKE_MAKE_FLAGS}
 
-ENV LLVM_DIR /opt/llvm-install/lib/cmake/llvm
+FROM anydsl/build-base
+WORKDIR /opt
 
-CMD ["/opt/llvm-install/bin/clang", "--version"]
+COPY --from=builder /opt/llvm /opt/llvm/
+
+RUN ls -al /opt/llvm/
+ENV LLVM_DIR /opt/llvm/lib/cmake/llvm
+
+CMD ["/opt/llvm/bin/clang", "--version"]
+
