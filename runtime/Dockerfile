@@ -17,7 +17,7 @@ RUN wget -q https://github.com/anydsl/runtime/archive/${RUNTIME_BRANCH}.tar.gz \
 
 RUN mkdir -p runtime/build \
  && cd runtime/build \
- && cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DRUNTIME_JIT=${RUNTIME_JIT} \
+ && cmake .. -DCMAKE_BUILD_TYPE:STRING=Release -DRUNTIME_JIT=${RUNTIME_JIT} -DCMAKE_NO_SYSTEM_FROM_IMPORTED=ON \
  && cmake --build . -- ${CMAKE_MAKE_FLAGS}
 
 ENV AnyDSL_runtime_DIR=/opt/anydsl/runtime/build/share/anydsl/cmake
