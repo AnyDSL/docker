@@ -1,11 +1,11 @@
-FROM anydsl/thorin
+FROM anydsl/artic
 
 LABEL website="https://anydsl.github.io"
 
 ENV IMPALA_BRANCH=master
 ARG CMAKE_MAKE_FLAGS=-j4
 
-RUN wget -q https://github.com/anydsl/impala/archive/${IMPALA_BRANCH}.tar.gz \
+RUN wget -q --no-check-certificate https://github.com/anydsl/impala/archive/${IMPALA_BRANCH}.tar.gz \
  && tar -xf ${IMPALA_BRANCH}.tar.gz \
  && rm ${IMPALA_BRANCH}.tar.gz \
  && mv impala-${IMPALA_BRANCH} impala

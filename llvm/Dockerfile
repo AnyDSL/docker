@@ -4,21 +4,24 @@ LABEL website="https://anydsl.github.io"
 
 WORKDIR /opt
 
-ENV LLVM_VERSION=10.0.0
-ARG RV_BRANCH=release/10.x
+ENV GIT_SSL_NO_VERIFY=1
+ENV LLVM_VERSION=14.0.6
+ARG RV_BRANCH=release/14.x
 ARG CMAKE_MAKE_FLAGS=-j4
 
-RUN wget -q https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-project-${LLVM_VERSION}.tar.xz \
- && tar -xf llvm-project-${LLVM_VERSION}.tar.xz \
- && rm llvm-project-${LLVM_VERSION}.tar.xz \
- && mv llvm-project-${LLVM_VERSION} llvm-project
+RUN wget -q --no-check-certificate https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-project-${LLVM_VERSION}.src.tar.xz \
+ && tar -xf llvm-project-${LLVM_VERSION}.src.tar.xz \
+ && rm llvm-project-${LLVM_VERSION}.src.tar.xz \
+ && mv llvm-project-${LLVM_VERSION}.src llvm-project
 
 RUN cd llvm-project \
- && wget -q https://raw.githubusercontent.com/AnyDSL/anydsl/master/nvptx_feature_ptx60.patch \
- && patch -p1 -i nvptx_feature_ptx60.patch
+ && wget -q --no-check-certificate https://raw.githubusercontent.com/AnyDSL/anydsl/master/patches/llvm/amdgpu_icmp_fold.patch \
+ && wget -q --no-check-certificate https://raw.githubusercontent.com/AnyDSL/anydsl/master/patches/llvm/nvptx_feature.patch \
+ && patch -p1 -i amdgpu_icmp_fold.patch \
+ && patch -p1 -i nvptx_feature.patch
 
 RUN cd llvm-project \
- && git clone https://github.com/cdl-saarland/rv --branch ${RV_BRANCH} --recursive rv
+ && git clone https://github.com/cdl-saarland/rv.git --branch ${RV_BRANCH} --recursive rv
 
 RUN mkdir -p llvm-build \
  && mkdir -p llvm \
@@ -30,9 +33,11 @@ RUN mkdir -p llvm-build \
         -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
         -DLLVM_ENABLE_RTTI:BOOL=ON \
         -DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
-        -DLLVM_EXTERNAL_PROJECTS="rv" \
+        -DLLVM_EXTERNAL_PROJECTS:STRING="rv" \
         -DLLVM_EXTERNAL_RV_SOURCE_DIR:PATH="/opt/llvm-project/rv" \
-        -DLLVM_TARGETS_TO_BUILD="AArch64;AMDGPU;ARM;NVPTX;X86"
+        -DLLVM_ENABLE_BINDINGS:BOOL=OFF \
+        -DLLVM_INCLUDE_TESTS:BOOL=ON \
+        -DLLVM_TARGETS_TO_BUILD:STRING="AArch64;AMDGPU;ARM;NVPTX;X86"
 
 RUN cmake --build /opt/llvm-build --target install -- ${CMAKE_MAKE_FLAGS}
 
@@ -45,4 +50,3 @@ RUN ls -al /opt/llvm/
 ENV LLVM_DIR /opt/llvm/lib/cmake/llvm
 
 CMD ["/opt/llvm/bin/clang", "--version"]
-
